@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Draggable Points Diagram</title>
+    <style>
+        body { text-align: center; }
+        canvas { border: 1px solid black; }
+    </style>
+</head>
+<body>
+    <canvas id="diagram" width="600" height="400"></canvas>
+    <script>
+        const canvas = document.getElementById("diagram");
+        const ctx = canvas.getContext("2d");
+
+        const points = Array.from({ length: 10 }, () => ({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height,
+            radius: 8,
+            dragging: false
+        }));
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            points.forEach(point => {
+                ctx.beginPath();
+                ctx.arc(point.x, point.y, point.radius, 0, Math.PI * 2);
+                ctx.fillStyle = "blue";
+                ctx.fill();
+                ctx.stroke();
+            });
+        }
+
+        let dragPoint = null;
+
+        canvas.addEventListener("mousedown", event => {
+            const { offsetX, offsetY } = event;
+            dragPoint = points.find(p => 
+                Math.hypot(p.x - offsetX, p.y - offsetY) < p.radius
+            );
+            if (dragPoint) dragPoint.dragging = true;
+        });
+
+        canvas.addEventListener("mousemove", event => {
+            if (!dragPoint) return;
+            dragPoint.x = event.offsetX;
+            dragPoint.y = event.offsetY;
+            draw();
+        });
+
+        canvas.addEventListener("mouseup", () => {
+            if (dragPoint) dragPoint.dragging = false;
+            dragPoint = null;
+        });
+
+        draw();
+    </script>
+</body>
+</html>
